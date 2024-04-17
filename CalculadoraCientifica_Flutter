@@ -1,0 +1,172 @@
+import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
+ 
+void main() {
+  runApp(CalculatorApp());
+}
+ 
+class CalculatorApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Calculator',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: CalculatorScreen(),
+    );
+  }
+}
+ 
+class CalculatorScreen extends StatefulWidget {
+  @override
+  _CalculatorScreenState createState() => _CalculatorScreenState();
+}
+ 
+class _CalculatorScreenState extends State<CalculatorScreen> {
+  String _expression = '';
+  String _result = '';
+ 
+  void _appendToExpression(String string) {
+    setState(() {
+      _expression += string;
+    });
+  }
+ 
+  void _clearExpression() {
+    setState(() {
+      _expression = '';
+      _result = '';
+    });
+  }
+ 
+  void _evaluateExpression() {
+    try {
+      Parser p = Parser();
+      ContextModel cm = ContextModel();
+      Expression exp = p.parse(_expression);
+      double eval = exp.evaluate(EvaluationType.REAL, cm);
+      setState(() {
+        _result = eval.toString();
+      });
+    } catch (e) {
+      setState(() {
+        _result = 'Error';
+      });
+    }
+  }
+ 
+  Widget _buildButton(String text, {Color color = Colors.red}) {
+    return ElevatedButton(
+      onPressed: () {
+        if (text == '=') {
+          _evaluateExpression();
+        } else {
+          _appendToExpression(text);
+        }
+      },
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(color),
+      ),
+      child: Text(text),
+    );
+  }
+ 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Calculadora cientifica'),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              alignment: Alignment.bottomRight,
+              child: Text(
+                _expression,
+                style: TextStyle(fontSize: 24.0),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Container(
+              padding: EdgeInsets.all(16.0),
+              alignment: Alignment.bottomRight,
+              child: Text(
+                _result,
+                style: TextStyle(fontSize: 24.0),
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 4,
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton('7'),
+                    _buildButton('8'),
+                    _buildButton('9'),
+                    _buildButton('/', color: Colors.red),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton('4'),
+                    _buildButton('5'),
+                    _buildButton('6'),
+                    _buildButton('*', color: Colors.red),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton('1'),
+                    _buildButton('2'),
+                    _buildButton('3'),
+                    _buildButton('-', color: Colors.red),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton('0'),
+                    _buildButton('.'),
+                    _buildButton('C', color: Colors.red),
+                    _buildButton('+', color: Colors.red),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton('sin('),
+                    _buildButton('cos('),
+                    _buildButton('tan('),
+                    _buildButton('log('),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildButton('exp('),
+                    _buildButton('sqrt('),
+                    _buildButton('^'),
+                    _buildButton('=', color: Colors.green),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
